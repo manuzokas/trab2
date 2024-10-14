@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= data.title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white p-4">
+        <h1 class="text-center text-3xl font-semibold">Gerenciamento de Usuários</h1>
+    </header>
+    <div class="container mx-auto mt-8">
+        <!-- Filtro de nome (opcional) -->
+        <form action="/users/list" method="get" class="mb-4">
+            <input type="text" name="nome" placeholder="Filtrar por nome" value="<%= data.nomeFiltro %>" class="border rounded p-2">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Buscar</button>
+        </form>
+        
+        <!-- Exibição dos usuários -->
+        <div class="bg-white shadow-md rounded my-6">
+            <table class="min-w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">ID</th>
+                        <th class="py-3 px-6 text-left">Nome</th>
+                        <th class="py-3 px-6 text-left">CPF</th>
+                        <th class="py-3 px-6 text-left">Email</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    <% data.users.forEach(function(user) { %>
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left whitespace-nowrap"><%= user.id %></td>
+                            <td class="py-3 px-6 text-left"><%= user.name %></td>
+                            <td class="py-3 px-6 text-left"><%= user.cpf %></td>
+                            <td class="py-3 px-6 text-left"><%= user.email %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Navegação de páginas -->
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Página <%= data.paginaAtual %> de <%= data.totalPaginas %></span>
+            <nav class="inline-flex shadow-sm">
+                <form action="/users/list" method="get">
+                    <!-- Campo oculto para manter o valor do filtro de nome (se existir) -->
+                    <input type="hidden" name="nome" value="<%= data.nomeFiltro %>">
+                    
+                    <!-- Botão de página anterior -->
+                    <% if (data.paginaAtual > 1) { %>
+                        <button name="pagina" value="<%= data.paginaAtual - 1 %>" class="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-md">Anterior</button>
+                    <% } else { %>
+                        <button class="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-md" disabled>Anterior</button>
+                    <% } %>
+                    
+                    <!-- Botões de navegação de página -->
+                    <% for (let i = 1; i <= data.totalPaginas; i++) { %>
+                        <button name="pagina" value="<%= i %>" class="px-3 py-1 bg-gray-300 text-gray-800 <%= data.paginaAtual === i ? 'bg-blue-500 text-white' : '' %>"><%= i %></button>
+                    <% } %>
+                    
+                    <!-- Botão de próxima página -->
+                    <% if (data.paginaAtual < data.totalPaginas) { %>
+                        <button name="pagina" value="<%= data.paginaAtual + 1 %>" class="px-3 py-1 bg-gray-300 text-gray-800 rounded-r-md">Próximo</button>
+                    <% } else { %>
+                        <button class="px-3 py-1 bg-gray-300 text-gray-800 rounded-r-md" disabled>Próximo</button>
+                    <% } %>
+                </form>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>
