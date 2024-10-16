@@ -1,0 +1,29 @@
+<%- include('includes/head') %>
+<body class="bg-gray-100">
+    <%- include('includes/nav') %>
+    <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-6 text-center"><%= data.user.name %> - Detalhes</h1>
+        <p><strong>CPF:</strong> <%= data.user.cpf %></p>
+        <p><strong>Email:</strong> <%= data.user.email %></p>
+        <p><strong>Perfil:</strong> <%= data.user.perfil %></p>
+
+        <h2 class="text-xl font-semibold mt-6">Telefones</h2>
+        <ul class="list-disc pl-5">
+            <% data.telefones.forEach(function(telefone) { %>
+                <li class="<%= telefone.is_primary ? 'font-bold' : '' %>">
+                    <%= telefone.phone_number %> <%= telefone.is_primary ? '(Principal)' : '' %>
+                </li>
+            <% }) %>
+        </ul>
+
+        <h2 class="text-xl font-semibold mt-6">Emails</h2>
+        <ul class="list-disc pl-5">
+            <% data.emails.forEach(function(email) { %>
+                <li class="<%= email.is_primary ? 'font-bold' : '' %>">
+                    <%= email.email %> <%= email.is_primary ? '(Principal)' : '' %>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</body>
+</html>

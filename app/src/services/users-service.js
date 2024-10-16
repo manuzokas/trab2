@@ -39,9 +39,16 @@ function paginaAddUserService() {
 function addUserService({ name, email, password, cpf, perfil }) {
     const userDao = new UserDao();
     const existingUser = userDao.findByCpf(cpf);
+
     if (existingUser) {
         throw new Error("CPF já cadastrado");
     }
+
+    // Validar os campos obrigatórios
+    if (!name || !email || !password || !cpf || !perfil) {
+        throw new Error("Todos os campos são obrigatórios");
+    }
+
     const newUser = new User(name, email, password, perfil, cpf);
     userDao.save(newUser);
 }
@@ -80,4 +87,17 @@ function updateUserService(id, { name, email, telefones, emails }) {
     return user;
 }
 
-export { listaUsersService, addUserService, removeUserService, updateUserService, paginaAddUserService };
+function userDetailsService(id) {
+    const userDao = new UserDao();
+    const user = userDao.findById(id);
+    if (!user) {
+        throw new Error("Usuário não encontrado");
+    }
+    // Obter telefones e emails
+    const telefones = userDao.findPhonesByUserId(id);
+    const emails = userDao.findEmailsByUserId(id);
+
+    return { user, telefones, emails };
+}
+
+export { listaUsersService, addUserService, removeUserService, updateUserService, paginaAddUserService, userDetailsService };

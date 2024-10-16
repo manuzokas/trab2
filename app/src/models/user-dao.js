@@ -2,22 +2,20 @@ import { db } from "../config/database.js";
 import { User } from "./user-model.js";
 
 class UserDao {
-
     // listando usuários com filtro por nome e paginação
     listFiltered(nome = "", limite = 5, offset = 0) {
         const stmt = db.prepare('SELECT * FROM users WHERE name LIKE ? LIMIT ? OFFSET ?');
         const users = stmt.all(`%${nome}%`, limite, offset);
         console.log({ users });
-
         return users;
     }
 
     // contando usuários filtrados por nome
-   countFiltered(nome = "") {
-    const stmt = db.prepare('SELECT COUNT(*) AS total FROM users WHERE name LIKE ?');
-    const result = stmt.get(`%${nome}%`); 
-    // Se não houver resultados, retorna 0 para evitar NaN
-    return result ? result.total : 0;
+    countFiltered(nome = "") {
+        const stmt = db.prepare('SELECT COUNT(*) AS total FROM users WHERE name LIKE ?');
+        const result = stmt.get(`%${nome}%`);
+        // Se não houver resultados, retorna 0 para evitar NaN
+        return result ? result.total : 0;
     }
 
     // buscando usuário por CPF
@@ -31,27 +29,25 @@ class UserDao {
     findById(id) {
         const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
         const user = stmt.get(id);
+        console.log(`Usuário encontrado:`, user);
         return user;
     }
 
     // Método para adicionar um novo usuário com validações
     addUser({ name, email, password, cpf, perfil = 'CLIENTE' }) {
-        // Validações básicas
+        // validando dados basicos
         if (!name || !email || !password || !cpf) {
             throw new Error("Todos os campos são obrigatórios");
         }
-
-        // Verificar se o CPF já existe no banco
+        // validando cpf
         const existingUser = this.findByCpf(cpf);
         if (existingUser) {
             throw new Error("CPF já cadastrado");
         }
-
-        // Criando o novo usuário
-        const createdAt = new Date().toISOString(); // Formato de data ISO para created_at
+        // criando um novo usuario
+        const createdAt = new Date().toISOString(); // atribuindo uma data a criacao do usuario
         const newUser = { name, email, password, createdAt, cpf, perfil };
-
-        // Salvando o usuário no banco
+        // salvando o usuario no banco
         this.save(newUser);
     }
 
@@ -71,9 +67,7 @@ class UserDao {
     updatePhones(id, telefones) {
         const deleteStmt = db.prepare('DELETE FROM phones WHERE user_id = ?');
         deleteStmt.run(id);
-
         const insertStmt = db.prepare('INSERT INTO phones (user_id, phone_number, is_primary) VALUES (?, ?, ?)');
-
         telefones.forEach(({ numero, principal }) => {
             insertStmt.run(id, numero, principal ? 1 : 0);
         });
@@ -83,12 +77,22 @@ class UserDao {
     updateEmails(id, emails) {
         const deleteStmt = db.prepare('DELETE FROM emails WHERE user_id = ?');
         deleteStmt.run(id);
-
         const insertStmt = db.prepare('INSERT INTO emails (user_id, email, is_primary) VALUES (?, ?, ?)');
-
         emails.forEach(({ email, principal }) => {
             insertStmt.run(id, email, principal ? 1 : 0);
         });
+    }
+
+    // buscando telefones por ID de usuário
+    findPhonesByUserId(userId) {
+        const stmt = db.prepare('SELECT * FROM phones WHERE user_id = ?');
+        return stmt.all(userId);
+    }
+
+    // buscando emails por ID de usuário
+    findEmailsByUserId(userId) {
+        const stmt = db.prepare('SELECT * FROM emails WHERE user_id = ?');
+        return stmt.all(userId);
     }
 
     // deletando um usuário
@@ -98,6 +102,4 @@ class UserDao {
     }
 }
 
-export {
-    UserDao
-};
+export { UserDao };

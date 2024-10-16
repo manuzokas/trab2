@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { listaUsers, paginaAddUser, addUser, removeUser, updateUser } from '../controllers/users-controller.js';
+import { listaUsers, paginaAddUser, addUser, removeUser, updateUser, userDetails } from '../controllers/users-controller.js';
 
 const router = Router();
 
+//rotas get
 router.get('/list', listaUsers);
-router.get('/add', paginaAddUser);
-router.post('/add', addUser);
+router.get('/addUser', paginaAddUser);
+router.get('/:id', userDetails);
+//rotas post
+router.post('/addUser', addUser);
 router.post('/remove/:id', removeUser);  // As rotas para deletar e atualizar são úteis
 router.post('/update/:id', updateUser);
 

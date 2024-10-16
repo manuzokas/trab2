@@ -1,4 +1,4 @@
-import { listaUsersService, addUserService, removeUserService, updateUserService, paginaAddUserService } from '../services/users-service.js';
+import { listaUsersService, addUserService, removeUserService, updateUserService, paginaAddUserService, userDetailsService } from '../services/users-service.js';
 
 // Função responsável por listar os usuários com paginação e filtro por nome
 function listaUsers(req, res) {
@@ -56,4 +56,15 @@ function updateUser(req, res) {
     }
 }
 
-export { listaUsers, paginaAddUser, addUser, removeUser, updateUser };
+function userDetails(req, res) {
+    const { id } = req.params;
+    try {
+        const data = userDetailsService(id);
+        res.render('user-details', { data });
+    } catch (error) {
+        console.error("Erro ao obter detalhes do usuário:", error);
+        res.status(500).send("Erro ao obter detalhes do usuário");
+    }
+}
+
+export { listaUsers, paginaAddUser, addUser, removeUser, updateUser, userDetails };
