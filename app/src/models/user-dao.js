@@ -47,6 +47,8 @@ class UserDao {
     }
 
     async saveEmails(userId, emails) {
+        const deleteStmt = db.prepare('DELETE FROM emails WHERE user_id = ?');
+        deleteStmt.run(userId);
         const emailStmt = db.prepare('INSERT INTO emails (user_id, email, is_primary) VALUES (?, ?, ?)');
         emails.forEach(email => {
             emailStmt.run(userId, email.email, email.is_primary ? 1 : 0);
@@ -54,6 +56,8 @@ class UserDao {
     }
 
     async savePhones(userId, telefones) {
+        const deleteStmt = db.prepare('DELETE FROM phones WHERE user_id = ?');
+        deleteStmt.run(userId);
         const phoneStmt = db.prepare('INSERT INTO phones (user_id, phone_number, is_primary) VALUES (?, ?, ?)');
         telefones.forEach(phone => {
             phoneStmt.run(userId, phone.phone_number, phone.is_primary ? 1 : 0);
@@ -66,20 +70,15 @@ class UserDao {
         stmt.run({ name, password, createdAt, cpf, perfil });
     }
 
-    // atualizando dados de um usuário
-    async update({ id, name, telefones = [], emails = [] }) {
-        // Validações para garantir ao menos um telefone e email principal
-        if (!emails.length || !emails.some(email => email.is_primary)) {
-            throw new Error("É necessário pelo menos um e-mail e um deve ser marcado como principal.");
+    //atualizando um usuario
+    async update({ id, name }) {
+        try {
+            const stmt = db.prepare('UPDATE users SET name = ? WHERE id = ?');
+            stmt.run(name, id);
+        } catch (error) {
+            console.error('Erro ao atualizar usuário:', error);
+            throw error;
         }
-        if (!telefones.length || !telefones.some(phone => phone.is_primary)) {
-            throw new Error("É necessário pelo menos um telefone e um deve ser marcado como principal.");
-        }
-        const stmt = db.prepare('UPDATE users SET name = ? WHERE id = ?');
-        stmt.run(name, id);
-        // Atualizando telefones e emails
-        await this.updatePhones(id, telefones);
-        await this.updateEmails(id, emails);
     }
 
     // atualizando telefones de um usuário

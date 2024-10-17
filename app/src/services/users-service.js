@@ -99,31 +99,27 @@ async function removeUserService(id) {
 
 async function updateUserService(id, { name, telefones, emails }) {
     const userDao = new UserDao();
-    const user = userDao.findById(id);
 
+    // Verificar se o usuário existe
+    const user = await userDao.findById(id);
     if (!user) {
         throw new Error("Usuário não encontrado");
     }
 
-    user.name = name || user.name;
+    // Validação de emails e telefones principais
+    if (!emails.some(email => email.is_primary)) {
+        throw new Error("É necessário ter ao menos um email principal.");
+    }
+    if (!telefones.some(phone => phone.is_primary)) {
+        throw new Error("É necessário ter ao menos um telefone principal.");
+    }
 
-    // Atualizar usuário básico
-    await userDao.update(user);
+    // Atualizar usuário (exceto CPF e perfil)
+    await userDao.update({ id, name });
 
     // Atualizar telefones e emails
-    if (telefones) {
-        if (!telefones.some(phone => phone.is_primary)) {
-            throw new Error("É necessário ter ao menos um telefone principal.");
-        }
-        await userDao.updatePhones(id, telefones);
-    }
-
-    if (emails) {
-        if (!emails.some(email => email.is_primary)) {
-            throw new Error("É necessário ter ao menos um email principal.");
-        }
-        await userDao.updateEmails(id, emails);
-    }
+    await userDao.savePhones(id, telefones);
+    await userDao.saveEmails(id, emails);
 
     return user;
 }

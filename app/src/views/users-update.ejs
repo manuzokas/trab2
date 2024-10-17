@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Usuário</title>
+</head>
+<body>
+    <h1>Atualizar Usuário</h1>
+    <form action="/updateUser/<%= data.id %>" method="POST">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" value="<%= data.name %>" required><br>
+
+        <h2>Emails</h2>
+        <div id="emails">
+            <% data.emails.forEach((email, index) => { %>
+                <label for="email<%= index %>">Email:</label>
+                <input type="email" id="email<%= index %>" name="emails[<%= index %>][email]" value="<%= email.email %>" required>
+                <label for="is_primary_email<%= index %>">Principal:</label>
+                <input type="radio" id="is_primary_email<%= index %>" name="emails[is_primary]" value="<%= index %>" <%= email.is_primary ? 'checked' : '' %>><br>
+            <% }) %>
+        </div>
+        <button type="button" onclick="addEmailField()">Adicionar Email</button><br>
+
+        <h2>Telefones</h2>
+        <div id="telefones">
+            <% data.telefones.forEach((phone, index) => { %>
+                <label for="phone<%= index %>">Telefone:</label>
+                <input type="tel" id="phone<%= index %>" name="telefones[<%= index %>][phone_number]" value="<%= phone.phone_number %>" required>
+                <label for="is_primary_phone<%= index %>">Principal:</label>
+                <input type="radio" id="is_primary_phone<%= index %>" name="telefones[is_primary]" value="<%= index %>" <%= phone.is_primary ? 'checked' : '' %>><br>
+            <% }) %>
+        </div>
+        <button type="button" onclick="addPhoneField()">Adicionar Telefone</button><br>
+
+        <button type="submit">Atualizar</button>
+    </form>
+
+    <script>
+        function addEmailField() {
+            const emailsDiv = document.getElementById('emails');
+            const newIndex = emailsDiv.children.length / 4; // assuming each email block has 4 elements
+            emailsDiv.innerHTML += `
+                <label for="email${newIndex}">Email:</label>
+                <input type="email" id="email${newIndex}" name="emails[${newIndex}][email]" required>
+                <label for="is_primary_email${newIndex}">Principal:</label>
+                <input type="radio" id="is_primary_email${newIndex}" name="emails[is_primary]" value="${newIndex}"><br>
+            `;
+        }
+
+        function addPhoneField() {
+            const phonesDiv = document.getElementById('telefones');
+            const newIndex = phonesDiv.children.length / 4; // assuming each phone block has 4 elements
+            phonesDiv.innerHTML += `
+                <label for="phone${newIndex}">Telefone:</label>
+                <input type="tel" id="phone${newIndex}" name="telefones[${newIndex}][phone_number]" required>
+                <label for="is_primary_phone${newIndex}">Principal:</label>
+                <input type="radio" id="is_primary_phone${newIndex}" name="telefones[is_primary]" value="${newIndex}"><br>
+            `;
+        }
+    </script>
+</body>
+</html>

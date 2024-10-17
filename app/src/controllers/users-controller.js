@@ -81,19 +81,40 @@ async function removeUser(req, res) {
 }
 
 
-// Atualizando usuário (exceto CPF e perfil)
 async function updateUser(req, res) {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
         const { name, telefones, emails } = req.body;
-        // emails e telefones devem ser arrays
-        await updateUserService(id, { name, telefones, emails });
-        res.redirect("/users");
+
+        // Garantir que emails e telefones estejam no formato correto
+        const formattedEmails = emails.map(email => ({
+            email: email.email,
+            is_primary: email.is_primary === 'true'
+        }));
+        const formattedPhones = telefones.map(phone => ({
+            phone_number: phone.phone_number,
+            is_primary: phone.is_primary === 'true'
+        }));
+
+        await updateUserService(id, { name, telefones: formattedPhones, emails: formattedEmails });
+        res.redirect("/users/details/" + id); // Redirecionar para os detalhes do usuário atualizado
     } catch (error) {
         console.error("Erro ao atualizar usuário:", error);
         res.status(500).send("Erro ao atualizar usuário");
     }
 }
+
+async function paginaUpdateUser(req, res) {
+    const { id } = req.params;
+    try {
+        const data = await userDetailsService(id); // Obter detalhes do usuário
+        res.render('users-update', { data });
+    } catch (error) {
+        console.error("Erro ao carregar detalhes do usuário:", error);
+        res.status(500).send("Erro ao carregar detalhes do usuário");
+    }
+}
+
 
 async function userDetails(req, res) {
     const { id } = req.params;
@@ -108,4 +129,4 @@ async function userDetails(req, res) {
 }
 
 
-export { listaUsers, paginaAddUser, addUser, removeUser, updateUser, userDetails };
+export { listaUsers, paginaAddUser, addUser, removeUser, updateUser, userDetails, paginaUpdateUser };
