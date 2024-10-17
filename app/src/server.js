@@ -8,6 +8,50 @@ import usersRouter from './routes/users-routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './config/database.js';
+import { addUser } from './config/addUsersDatabase.js';
+import sqlite3 from 'sqlite3';
+
+// Configuração e abertura do banco de dados sqlite3
+const sqlite = sqlite3.verbose();
+const database = new sqlite.Database('C:/Users/55539/tads-webii-2024-2/Aula04/app/dados.db');
+
+// Função para garantir que os usuários existam no banco de dados
+function ensureUsersExist() {
+    const users = db.prepare('SELECT * FROM users').all();
+
+    if (users.length === 0) {
+        // Adicionando múltiplos usuários de teste se não houver usuários no banco de dados
+        addUser('Maria Silva', 'senha123', '123.456.789-00', 'CLIENTE', [{ email: 'maria@example.com', is_primary: true }], [{ phone_number: '11987654321', is_primary: true }]);
+        addUser('João Pereira', 'senha456', '987.654.321-00', 'CLIENTE', [{ email: 'joao@example.com', is_primary: true }], [{ phone_number: '11976543210', is_primary: true }]);
+        addUser('Ana Costa', 'senha789', '456.789.123-00', 'CLIENTE', [{ email: 'ana@example.com', is_primary: true }], [{ phone_number: '11987654322', is_primary: true }]);
+        addUser('Carlos Almeida', 'senha321', '321.654.987-00', 'CLIENTE', [{ email: 'carlos@example.com', is_primary: true }], [{ phone_number: '11976543211', is_primary: true }]);
+        addUser('Patrícia Santos', 'senha654', '654.321.123-00', 'CLIENTE', [{ email: 'patricia@example.com', is_primary: true }], [{ phone_number: '11987654323', is_primary: true }]);
+        addUser('Roberto Lima', 'senha987', '987.123.456-00', 'CLIENTE', [{ email: 'roberto@example.com', is_primary: true }], [{ phone_number: '11976543212', is_primary: true }]);
+        addUser('Juliana Martins', 'senha159', '159.753.486-00', 'CLIENTE', [{ email: 'juliana@example.com', is_primary: true }], [{ phone_number: '11987654324', is_primary: true }]);
+        addUser('Fernando Rocha', 'senha753', '753.951.852-00', 'CLIENTE', [{ email: 'fernando@example.com', is_primary: true }], [{ phone_number: '11976543213', is_primary: true }]);
+        addUser('Tatiane Dias', 'senha852', '852.963.741-00', 'CLIENTE', [{ email: 'tatiane@example.com', is_primary: true }], [{ phone_number: '11987654325', is_primary: true }]);
+        addUser('Lucas Ferreira', 'senha456', '963.741.258-00', 'CLIENTE', [{ email: 'lucas@example.com', is_primary: true }], [{ phone_number: '11976543214', is_primary: true }]);
+        // Adicione os outros usuários da mesma forma...
+        console.log("Usuários de teste adicionados ao banco de dados.");
+    } else {
+        console.log("Usuários já existem no banco de dados.");
+    }
+}
+
+// Função para verificar o CPF
+function checkCpf(cpf) {
+    database.get('SELECT * FROM users WHERE cpf = ?', [cpf], (err, row) => {
+        if (err) {
+            console.error('Erro ao consultar CPF:', err);
+        } else if (row) {
+            console.log('Usuário encontrado:', row);
+        } else {
+            console.log('Nenhum usuário encontrado com este CPF');
+        }
+    });
+}
+
+checkCpf('04653448019');
 
 //configurações iniciais
 const __filename = fileURLToPath(import.meta.url); //determinando o nome do arquivo
@@ -45,13 +89,7 @@ app.use((req, res, next) => {
 // importando e utilizando as rotas de usuário
 app.use('/users', usersRouter);  // Gerencia as rotas de usuários, incluindo '/users/home'
 
-// adicionando múltiplos usuários de teste
-//const stmt = db.prepare('INSERT INTO users (name, email, password, created_at, cpf, perfil) VALUES (?, ?, ?, ?, ?, ?)');
-
-// for (let i = 1; i <= 10; i++) {
-//     stmt.run(`Teste ${i}`, `teste${i}@example.com`, 'senha123', new Date().toISOString(), `123.456.789-0${i}`, 'admin');
-//     console.log(`Usuário Teste ${i} adicionado!`);
-// }
+ensureUsersExist();
 
 // Consultando todos os usuários 
 const users = db.prepare('SELECT * FROM users').all();

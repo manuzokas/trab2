@@ -9,7 +9,7 @@
             <input type="text" name="nome" placeholder="Filtrar por nome" value="<%= data.nomeFiltro %>" class="border rounded p-2">
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Buscar</button>
         </form>
-        
+
         <div class="bg-white shadow-md rounded my-6">
             <table class="min-w-full table-auto">
                 <thead>
@@ -17,6 +17,7 @@
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nome</th>
                         <th class="py-3 px-6 text-left">CPF</th>
+                        <th class="py-3 px-6 text-left">Telefone</th>
                         <th class="py-3 px-6 text-left">Email</th>
                     </tr>
                 </thead>
@@ -26,33 +27,50 @@
                             <td class="py-3 px-6 text-left whitespace-nowrap"><%= user.id %></td>
                             <td class="py-3 px-6 text-left"><%= user.name %></td>
                             <td class="py-3 px-6 text-left"><%= user.cpf %></td>
-                            <td class="py-3 px-6 text-left"><%= user.email %></td>
+                            <td class="py-3 px-6 text-left">
+                                <% 
+                                const primaryPhone = user.phones && user.phones.find(phone => phone.is_primary === 1);
+                                if (primaryPhone) { 
+                                %>
+                                    <%= primaryPhone.phone_number %>
+                                <% } else { %>
+                                    Não cadastrado
+                                <% } %>
+                            </td>
+                            <td class="py-3 px-6 text-left">
+                                <% 
+                                const primaryEmail = user.emails && user.emails.find(email => email.is_primary === 1);
+                                if (primaryEmail) { 
+                                %>
+                                    <%= primaryEmail.email %>
+                                <% } else { %>
+                                    Não cadastrado
+                                <% } %>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Navegação de páginas -->
         <div class="flex justify-between items-center mt-4">
             <span class="text-sm text-gray-600">Página <%= data.paginaAtual %> de <%= data.totalPaginas %></span>
             <nav class="inline-flex shadow-sm">
                 <form action="/users/list" method="get">
-                    
                     <input type="hidden" name="nome" value="<%= data.nomeFiltro %>">
-                    
                     <!-- Botão de página anterior -->
                     <% if (data.paginaAtual > 1) { %>
                         <button name="pagina" value="<%= data.paginaAtual - 1 %>" class="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-md">Anterior</button>
                     <% } else { %>
                         <button class="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-md" disabled>Anterior</button>
                     <% } %>
-                    
+
                     <!-- Botões de navegação de página -->
                     <% for (let i = 1; i <= data.totalPaginas; i++) { %>
                         <button name="pagina" value="<%= i %>" class="px-3 py-1 bg-gray-300 text-gray-800 <%= data.paginaAtual === i ? 'bg-blue-500 text-white' : '' %>"><%= i %></button>
                     <% } %>
-                    
+
                     <!-- Botão de próxima página -->
                     <% if (data.paginaAtual < data.totalPaginas) { %>
                         <button name="pagina" value="<%= data.paginaAtual + 1 %>" class="px-3 py-1 bg-gray-300 text-gray-800 rounded-r-md">Próximo</button>

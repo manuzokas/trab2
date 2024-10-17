@@ -15,8 +15,27 @@
             </div>
             
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
-                <input type="email" name="email" id="email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <label for="emails" class="block text-sm font-medium text-gray-700">Emails:</label>
+                <div id="emails-container">
+                    <div class="email-item flex items-center mb-2">
+                        <input type="email" name="emails[0].email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Email">
+                        <input type="checkbox" name="emails[0].isPrincipal" class="ml-2"> Principal
+                        <button type="button" class="remove-email ml-2 text-red-500">Remover</button>
+                    </div>
+                </div>
+                <button type="button" id="add-email" class="mt-2 w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Adicionar Email</button>
+            </div>
+
+            <div>
+                <label for="telefones" class="block text-sm font-medium text-gray-700">Telefones:</label>
+                <div id="telefones-container">
+                    <div class="telefone-item flex items-center mb-2">
+                        <input type="text" name="telefones[0].phone_number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Telefone">
+                        <input type="checkbox" name="telefones[0].isPrincipal" class="ml-2"> Principal
+                        <button type="button" class="remove-telefone ml-2 text-red-500">Remover</button>
+                    </div>
+                </div>
+                <button type="button" id="add-telefone" class="mt-2 w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Adicionar Telefone</button>
             </div>
             
             <div>
@@ -37,5 +56,45 @@
             </div>
         </form>
     </div>
+
+    <script>
+        let emailIndex = 1; // Index para novos emails
+        let telefoneIndex = 1; // Index para novos telefones
+
+        document.getElementById('add-email').addEventListener('click', function() {
+            const emailItem = document.createElement('div');
+            emailItem.className = 'email-item flex items-center mb-2';
+            emailItem.innerHTML = `
+                <input type="email" name="emails[${emailIndex}].email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Email">
+                <input type="checkbox" name="emails[${emailIndex}].isPrincipal" class="ml-2"> Principal
+                <button type="button" class="remove-email ml-2 text-red-500">Remover</button>
+            `;
+            document.getElementById('emails-container').appendChild(emailItem);
+            emailIndex++;
+
+            // Adiciona o evento para remover o email
+            emailItem.querySelector('.remove-email').addEventListener('click', function() {
+                emailItem.remove();
+            });
+        });
+
+        document.getElementById('add-telefone').addEventListener('click', function() {
+            const telefoneItem = document.createElement('div');
+            telefoneItem.className = 'telefone-item flex items-center mb-2';
+            telefoneItem.innerHTML = `
+                <input type="text" name="telefones[${telefoneIndex}].phone_number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Telefone">
+                <input type="checkbox" name="telefones[${telefoneIndex}].isPrincipal" class="ml-2"> Principal
+                <button type="button" class="remove-telefone ml-2 text-red-500">Remover</button>
+            `;
+            document.getElementById('telefones-container').appendChild(telefoneItem);
+            telefoneIndex++;
+
+            // Adiciona o evento para remover o telefone
+            telefoneItem.querySelector('.remove-telefone').addEventListener('click', function() {
+                telefoneItem.remove();
+            });
+        });
+        
+    </script>
 </body>
 </html>
