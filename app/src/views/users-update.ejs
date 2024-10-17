@@ -4,58 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atualizar Usuário</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
 </head>
-<body>
-    <h1>Atualizar Usuário</h1>
-    <form action="/updateUser/<%= data.id %>" method="POST">
-        <label for="name">Nome:</label>
-        <input type="text" id="name" name="name" value="<%= data.name %>" required><br>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
+        <h1 class="text-2xl font-bold mb-4 text-center">Atualizar Usuário</h1>
+        <form action="/updateUser/<%= data.id %>" method="POST">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-700">Nome:</label>
+                <input type="text" id="name" name="name" value="<%= data.user.name %>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+                <label for="cpf" class="block text-sm font-medium text-gray-700">CPF:</label>
+                <input type="text" id="cpf" name="cpf" value="<%= data.user.cpf %>" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-200 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+                <label for="perfil" class="block text-sm font-medium text-gray-700">Perfil:</label>
+                <input type="text" id="perfil" name="perfil" value="<%= data.user.perfil %>" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm bg-gray-200 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <h2 class="text-xl font-semibold mb-2">Emails</h2>
+            <div id="emails" class="space-y-4">
+                <% data.emails.forEach((email, index) => { %>
+                    <div class="flex items-center space-x-2">
+                        <input type="email" id="email<%= index %>" name="emails[<%= index %>][email]" value="<%= email.email %>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <label for="is_primary_email<%= index %>" class="block text-sm font-medium text-gray-700">Principal:</label>
+                        <input type="radio" id="is_primary_email<%= index %>" name="emails[is_primary]" value="<%= index %>" <%= email.is_primary ? 'checked' : '' %> class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                    </div>
+                <% }) %>
+            </div>
+            <button type="button" onclick="addEmailField()" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Adicionar Email</button>
 
-        <h2>Emails</h2>
-        <div id="emails">
-            <% data.emails.forEach((email, index) => { %>
-                <label for="email<%= index %>">Email:</label>
-                <input type="email" id="email<%= index %>" name="emails[<%= index %>][email]" value="<%= email.email %>" required>
-                <label for="is_primary_email<%= index %>">Principal:</label>
-                <input type="radio" id="is_primary_email<%= index %>" name="emails[is_primary]" value="<%= index %>" <%= email.is_primary ? 'checked' : '' %>><br>
-            <% }) %>
-        </div>
-        <button type="button" onclick="addEmailField()">Adicionar Email</button><br>
+            <h2 class="text-xl font-semibold mt-6 mb-2">Telefones</h2>
+            <div id="telefones" class="space-y-4">
+                <% data.telefones.forEach((phone, index) => { %>
+                    <div class="flex items-center space-x-2">
+                        <input type="tel" id="phone<%= index %>" name="telefones[<%= index %>][phone_number]" value="<%= phone.phone_number %>" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <label for="is_primary_phone<%= index %>" class="block text-sm font-medium text-gray-700">Principal:</label>
+                        <input type="radio" id="is_primary_phone<%= index %>" name="telefones[is_primary]" value="<%= index %>" <%= phone.is_primary ? 'checked' : '' %> class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                    </div>
+                <% }) %>
+            </div>
+            <button type="button" onclick="addPhoneField()" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Adicionar Telefone</button>
 
-        <h2>Telefones</h2>
-        <div id="telefones">
-            <% data.telefones.forEach((phone, index) => { %>
-                <label for="phone<%= index %>">Telefone:</label>
-                <input type="tel" id="phone<%= index %>" name="telefones[<%= index %>][phone_number]" value="<%= phone.phone_number %>" required>
-                <label for="is_primary_phone<%= index %>">Principal:</label>
-                <input type="radio" id="is_primary_phone<%= index %>" name="telefones[is_primary]" value="<%= index %>" <%= phone.is_primary ? 'checked' : '' %>><br>
-            <% }) %>
-        </div>
-        <button type="button" onclick="addPhoneField()">Adicionar Telefone</button><br>
-
-        <button type="submit">Atualizar</button>
-    </form>
+            <button type="submit" class="mt-6 w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Atualizar</button>
+        </form>
+    </div>
 
     <script>
         function addEmailField() {
             const emailsDiv = document.getElementById('emails');
-            const newIndex = emailsDiv.children.length / 4; // assuming each email block has 4 elements
+            const newIndex = emailsDiv.children.length / 2; // assuming each email block has 2 elements
             emailsDiv.innerHTML += `
-                <label for="email${newIndex}">Email:</label>
-                <input type="email" id="email${newIndex}" name="emails[${newIndex}][email]" required>
-                <label for="is_primary_email${newIndex}">Principal:</label>
-                <input type="radio" id="is_primary_email${newIndex}" name="emails[is_primary]" value="${newIndex}"><br>
+                <div class="flex items-center space-x-2">
+                    <input type="email" id="email${newIndex}" name="emails[${newIndex}][email]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <label for="is_primary_email${newIndex}" class="block text-sm font-medium text-gray-700">Principal:</label>
+                    <input type="radio" id="is_primary_email${newIndex}" name="emails[is_primary]" value="${newIndex}" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                </div>
             `;
         }
 
         function addPhoneField() {
             const phonesDiv = document.getElementById('telefones');
-            const newIndex = phonesDiv.children.length / 4; // assuming each phone block has 4 elements
+            const newIndex = phonesDiv.children.length / 2; // assuming each phone block has 2 elements
             phonesDiv.innerHTML += `
-                <label for="phone${newIndex}">Telefone:</label>
-                <input type="tel" id="phone${newIndex}" name="telefones[${newIndex}][phone_number]" required>
-                <label for="is_primary_phone${newIndex}">Principal:</label>
-                <input type="radio" id="is_primary_phone${newIndex}" name="telefones[is_primary]" value="${newIndex}"><br>
+                <div class="flex items-center space-x-2">
+                    <input type="tel" id="phone${newIndex}" name="telefones[${newIndex}][phone_number]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <label for="is_primary_phone${newIndex}" class="block text-sm font-medium text-gray-700">Principal:</label>
+                    <input type="radio" id="is_primary_phone${newIndex}" name="telefones[is_primary]" value="${newIndex}" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                </div>
             `;
         }
     </script>
