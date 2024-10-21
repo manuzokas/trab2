@@ -9,43 +9,60 @@
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
         <h1 class="text-2xl font-bold mb-4 text-center">Detalhes do Usuário</h1>
-        <div class="mb-4">
-            <h2 class="text-xl font-semibold">Informações Pessoais</h2>
-            <p><strong>Nome:</strong> <%= data.user.name %></p>
-            <p><strong>CPF:</strong> <%= data.user.cpf %></p>
-            <p><strong>Perfil:</strong> <%= data.user.perfil %></p>
-        </div>
-        <div class="mb-4">
-            <h2 class="text-xl font-semibold">Emails</h2>
-            <ul>
-                <% data.emails.forEach(function(email) { %>
-                    <li class="flex justify-between items-center p-2 border-b">
-                        <span><%= email.email %></span>
-                        <span class="text-sm <%= email.is_primary ? 'text-green-600' : 'text-gray-600' %>">
-                            <%= email.is_primary ? 'Principal' : 'Secundário' %>
-                        </span>
-                    </li>
-                <% }) %>
-            </ul>
-        </div>
-        <div class="mb-4">
-            <h2 class="text-xl font-semibold">Telefones</h2>
-            <ul>
-                <% data.telefones.forEach(function(telefone) { %>
-                    <li class="flex justify-between items-center p-2 border-b">
-                        <span><%= telefone.phone_number %></span>
-                        <span class="text-sm <%= telefone.is_primary ? 'text-green-600' : 'text-gray-600' %>">
-                            <%= telefone.is_primary ? 'Principal' : 'Secundário' %>
-                        </span>
-                    </li>
-                <% }) %>
-            </ul>
-        </div>
-        <div class="text-center">
-            <a href="/users/updateUser/<%= data.user.id %>" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
-                Editar Usuário
-            </a>
-        </div>
+        <% if (data && data.user) { %>
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold">Informações Pessoais</h2>
+                <p><strong>Nome:</strong> <%= data.user.name %></p>
+                <p><strong>CPF:</strong> <%= data.user.cpf %></p>
+                <p><strong>Perfil:</strong> <%= data.user.perfil %></p>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold">Emails</h2>
+                <ul>
+                    <% if (data.emails && data.emails.length > 0) { %>
+                        <% data.emails.forEach(function(email) { %>
+                            <li class="flex justify-between items-center p-2 border-b">
+                                <span><%= email.email %></span>
+                                <span class="text-sm <%= email.is_primary ? 'text-green-600' : 'text-gray-600' %>">
+                                    <%= email.is_primary ? 'Principal' : 'Secundário' %>
+                                </span>
+                            </li>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-red-500">Erro: Emails não encontrados.</p>
+                    <% } %>
+                </ul>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold">Telefones</h2>
+                <ul>
+                    <% if (data.telefones && data.telefones.length > 0) { %>
+                        <% data.telefones.forEach(function(telefone) { %>
+                            <li class="flex justify-between items-center p-2 border-b">
+                                <span><%= telefone.phone_number %></span>
+                                <span class="text-sm <%= telefone.is_primary ? 'text-green-600' : 'text-gray-600' %>">
+                                    <%= telefone.is_primary ? 'Principal' : 'Secundário' %>
+                                </span>
+                            </li>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-red-500">Erro: Telefones não encontrados.</p>
+                    <% } %>
+                </ul>
+            </div>
+
+            <% if (data.user.id) { %>
+                <div class="text-center">
+                    <a href="/users/updateUser/<%= data.user.id %>" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
+                        Editar Usuário
+                    </a>
+                </div>
+            <% } %>
+        <% } else { %>
+            <p class="text-red-500">Erro: Informações do usuário não encontradas.</p>
+        <% } %>
     </div>
 </body>
 </html>

@@ -20,7 +20,7 @@ async function listaUsersService(nome, pagina) {
     const users = usersRaw.map(u => {
         const userEmails = emailsRaw.filter(email => email.user_id === u.id) || [];
         const userTelefones = telefonesRaw.filter(phone => phone.user_id === u.id) || [];
-        return new User(u.name, u.password, u.created_at, u.cpf, u.perfil, userEmails.length ? userEmails : [], userTelefones.length ? userTelefones : []);
+        return new User(u.id, u.name, u.password, u.created_at, u.cpf, u.perfil, userEmails.length ? userEmails : [], userTelefones.length ? userTelefones : []);
     });
 
     // contando total de usuários filtrados
@@ -69,9 +69,10 @@ async function addUserService({ name, password, cpf, perfil = 'CLIENTE', emails,
         throw new Error("É necessário ter ao menos um telefone principal.");
     }
 
-    const newUser = new User(name, password, new Date().toISOString(), cpf, perfil, emails, telefones);
-
+    // Criando novo usuário com id undefined, que será gerado pelo banco de dados
+    const newUser = new User(undefined, name, password, new Date().toISOString(), cpf, perfil, emails, telefones);
     const userId = await userDao.addUser(newUser);
+    newUser.id = userId; // Atualizando o id do usuário após inserção
 
     await userDao.saveEmails(userId, emails);
     await userDao.savePhones(userId, telefones);
@@ -84,22 +85,31 @@ async function removeUserService(id) {
     const userDao = new UserDao();
     const user = await userDao.findById(id);
     console.log(`Usuário encontrado: ${user ? JSON.stringify(user) : 'Não encontrado'}`);
+    
     if (!user) {
         throw new Error("Usuário não encontrado");
     }
+    
     if (user.perfil === 'ADMIN') {
         throw new Error("Não é permitido remover administradores");
     }
+    
     console.log(`Removendo telefones do usuário com ID: ${id}`);
     await userDao.deletePhonesByUserId(id);
     console.log(`Telefones removidos para o usuário com ID: ${id}`);
+    
     console.log(`Removendo emails do usuário com ID: ${id}`);
     await userDao.deleteEmailsByUserId(id);
     console.log(`Emails removidos para o usuário com ID: ${id}`);
+    
     console.log(`Removendo usuário com ID: ${id}`);
     await userDao.delete(id);
     console.log(`Usuário removido com ID: ${id}`);
+    
+    // Retornar uma mensagem de sucesso
+    return { success: true, message: `Usuário com ID ${id} removido com sucesso.` };
 }
+
 
 
 async function updateUserService(id, { name, telefones, emails }) {
@@ -133,26 +143,36 @@ async function userDetailsService(id) {
         console.error("Usuário não encontrado");
         throw new Error("Usuário não encontrado");
     }
-    
+
     console.log(`Buscando telefones do usuário com ID: ${id}`);
     const telefones = await userDao.findPhonesByUserId(id);
     console.log(`Telefones encontrados: ${telefones ? JSON.stringify(telefones) : 'Nenhum telefone encontrado'}`);
-    
+
     console.log(`Buscando emails do usuário com ID: ${id}`);
     const emails = await userDao.findEmailsByUserId(id);
     console.log(`Emails encontrados: ${emails ? JSON.stringify(emails) : 'Nenhum email encontrado'}`);
-    
-    console.log(`Detalhes completos do usuário com ID: ${id} obtidos.`);
 
-    //retornando dados
+    console.log(`Detalhes completos do usuário com ID: ${id} obtidos.`);
+    
+    // Criar uma instância completa do User
+    const completeUser = new User(
+        user.id,
+        user.name,
+        user.password,
+        user.created_at,
+        user.cpf,
+        user.perfil,
+        emails,
+        telefones
+    );
+
     return {
-        id: user.id,
-        name: user.name,
-        cpf: user.cpf,
-        telefones,
-        emails
+        user: completeUser, // Passa o objeto User
+        emails: emails, // Passa os emails
+        telefones: telefones // Passa os telefones
     };
 }
+
 
 
 

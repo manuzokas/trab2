@@ -1,5 +1,6 @@
 class User {
-    constructor(name, password, createdAt, cpf, perfil = 'CLIENTE', emails = [], telefones = []) {
+    constructor(id, name, password, createdAt, cpf, perfil = 'CLIENTE', emails = [], telefones = []) {
+        this.id = id;
         this.name = name;
         this.password = password;
         this.createdAt = createdAt;

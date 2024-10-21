@@ -155,11 +155,20 @@ async function paginaUpdateUser(req, res) {
     }
 }
 
-
 async function userDetails(req, res) {
-    const { id } = req.params;
+    const { id } = req.params; // Obtemos o ID do usuário a partir dos parâmetros da requisição
     try {
-        const data = await userDetailsService(id);
+        const data = await userDetailsService(id); // Chamamos o serviço para obter os detalhes do usuário
+        
+        // Verifica se os dados retornados contêm um usuário
+        if (!data || !data.user) {
+            return res.status(404).render('user-details', {
+                data: null, // Passa null para indicar que não há dados
+                errorMessage: "Usuário não encontrado."
+            });
+        }
+
+        // Renderiza a view com os dados do usuário
         res.render('user-details', { data });
     } catch (error) {
         console.error("Erro ao obter detalhes do usuário:", error);

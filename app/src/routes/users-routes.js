@@ -17,7 +17,7 @@ router.get('/deleteUser/:id', async (req, res) => {
     try {
         const user = await userDetailsService(id);
         console.log('Usuário encontrado:', user);
-        res.render('delete-user', { user });
+        res.render('delete-user', { user: user.user });
     } catch (error) {
         console.error(`Erro ao carregar detalhes do usuário ${id}:`, error);
         res.status(500).json({ error: "Erro ao carregar detalhes do usuário" });
