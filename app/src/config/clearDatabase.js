@@ -5,7 +5,7 @@ function clearDatabase() {
     db.exec('BEGIN TRANSACTION');
 
     try {
-        // Deletar os registros das tabelas
+        // deletando os registros das tabelas
         db.exec('DELETE FROM emails');
         db.exec('DELETE FROM phones');
         db.exec('DELETE FROM users');

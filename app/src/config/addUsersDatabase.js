@@ -1,22 +1,21 @@
 // scripts/addUsers.js
 import { db } from '../config/database.js';
 
-// Função para adicionar um novo usuário
 export function addUser(name, password, cpf, perfil = 'CLIENTE', emails = [], telefones = []) {
     const createdAt = new Date().toISOString();
 
-    // Inserir usuário
+    //inserindo os usuarios testes
     const stmtUser = db.prepare('INSERT INTO users (name, password, created_at, cpf, perfil) VALUES (?, ?, ?, ?, ?)');
     const resultUser = stmtUser.run(name, password, createdAt, cpf, perfil);
     const userId = resultUser.lastInsertRowid;
 
-    // Inserir emails
+    // inserindo os emails
     const stmtEmail = db.prepare('INSERT INTO emails (user_id, email, is_primary) VALUES (?, ?, ?)');
     emails.forEach(email => {
         stmtEmail.run(userId, email.email, email.is_primary ? 1 : 0);
     });
 
-    // Inserir telefones
+    // inserindo os telefones
     const stmtPhone = db.prepare('INSERT INTO phones (user_id, phone_number, is_primary) VALUES (?, ?, ?)');
     telefones.forEach(phone => {
         stmtPhone.run(userId, phone.phone_number, phone.is_primary ? 1 : 0);
@@ -25,7 +24,7 @@ export function addUser(name, password, cpf, perfil = 'CLIENTE', emails = [], te
     console.log(`Usuário ${name} adicionado com sucesso!`);
 }
 
-// Adicionando meus usuários
+// adicionando meus usuarios
 addUser('Maria Silva', 'senha123', '123.456.789-00', 'CLIENTE', [{ email: 'maria@example.com', is_primary: true }], [{ phone_number: '11987654321', is_primary: true }]);
 addUser('João Pereira', 'senha456', '987.654.321-00', 'CLIENTE', [{ email: 'joao@example.com', is_primary: true }], [{ phone_number: '11976543210', is_primary: true }]);
 addUser('Ana Costa', 'senha789', '456.789.123-00', 'CLIENTE', [{ email: 'ana@example.com', is_primary: true }], [{ phone_number: '11987654322', is_primary: true }]);

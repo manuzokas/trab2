@@ -33,11 +33,10 @@ class UserDao {
 
     async addUser({ name, password, cpf, perfil, createdAt }) {
         try {
-            // Inserção de usuário
+            // inserindo usuario
             const stmt = db.prepare('INSERT INTO users (name, password, created_at, cpf, perfil) VALUES (?, ?, ?, ?, ?)');
             stmt.run(name, password, createdAt, cpf, perfil);
-
-            // Recuperar o ID do usuário adicionado
+            // recuperando o ID do usuário adicionado
             const userId = db.prepare('SELECT last_insert_rowid() as id').get().id;
             return userId;
         } catch (error) {
@@ -47,22 +46,44 @@ class UserDao {
     }
 
     async saveEmails(userId, emails) {
+        // removendo emails antigos
         const deleteStmt = db.prepare('DELETE FROM emails WHERE user_id = ?');
         deleteStmt.run(userId);
+
+        // inserindo emails novos
         const emailStmt = db.prepare('INSERT INTO emails (user_id, email, is_primary) VALUES (?, ?, ?)');
         emails.forEach(email => {
             emailStmt.run(userId, email.email, email.is_primary ? 1 : 0);
         });
+
+        // definindo apenas um email como principal
+        const primaryEmail = emails.find(email => email.is_primary);
+        if (primaryEmail) {
+            const updatePrimaryStmt = db.prepare('UPDATE emails SET is_primary = 1 WHERE user_id = ? AND email = ?');
+            updatePrimaryStmt.run(userId, primaryEmail.email);
+        }
     }
 
+
     async savePhones(userId, telefones) {
+        // removendo telefones antigos
         const deleteStmt = db.prepare('DELETE FROM phones WHERE user_id = ?');
         deleteStmt.run(userId);
+
+        // inserindo telefones novos
         const phoneStmt = db.prepare('INSERT INTO phones (user_id, phone_number, is_primary) VALUES (?, ?, ?)');
         telefones.forEach(phone => {
             phoneStmt.run(userId, phone.phone_number, phone.is_primary ? 1 : 0);
         });
+
+        // definindo apenas um telefone como principal
+        const primaryPhone = telefones.find(phone => phone.is_primary);
+        if (primaryPhone) {
+            const updatePrimaryStmt = db.prepare('UPDATE phones SET is_primary = 1 WHERE user_id = ? AND phone_number = ?');
+            updatePrimaryStmt.run(userId, primaryPhone.phone_number);
+        }
     }
+
 
     // salvando um novo usuário
     async save({ name, password, createdAt, cpf, perfil }) {
@@ -70,34 +91,54 @@ class UserDao {
         stmt.run({ name, password, createdAt, cpf, perfil });
     }
 
-    //atualizando um usuario
     async update({ id, name }) {
         try {
+            console.log(`Atualizando usuário ${id} com nome ${name}`);
             const stmt = db.prepare('UPDATE users SET name = ? WHERE id = ?');
             stmt.run(name, id);
+            console.log(`Usuário ${id} atualizado com sucesso`);
         } catch (error) {
             console.error('Erro ao atualizar usuário:', error);
             throw error;
         }
     }
 
-    // atualizando telefones de um usuário
-    async updatePhones(id, telefones) {
-        const deleteStmt = db.prepare('DELETE FROM phones WHERE user_id = ?');
-        deleteStmt.run(id);
-        const insertStmt = db.prepare('INSERT INTO phones (user_id, phone_number, is_primary) VALUES (?, ?, ?)');
-        telefones.forEach(({ phone_number, is_primary }) => {
-            insertStmt.run(id, phone_number, is_primary ? 1 : 0);
+    async updateUser({ id, name}) {
+        const query = `
+            UPDATE users
+            SET name = ?
+            WHERE id = ?;
+        `;
+        db.prepare(query).run(name, id);
+    }
+
+    async updatePhones(userId, telefones) {
+        // removendo telefones antigos
+        const deleteQuery = `DELETE FROM phones WHERE user_id = ?;`;
+        db.prepare(deleteQuery).run(userId);
+        // inserindo os telefones atualizados
+        const insertQuery = `
+            INSERT INTO phones (user_id, phone_number, is_primary)
+            VALUES (?, ?, ?);
+        `;
+        const insert = db.prepare(insertQuery);
+        telefones.forEach(phone => {
+            insert.run(userId, phone.phone_number, phone.is_primary ? 1 : 0);
         });
     }
 
-    // atualizando emails de um usuário
-    async updateEmails(id, emails) {
-        const deleteStmt = db.prepare('DELETE FROM emails WHERE user_id = ?');
-        deleteStmt.run(id);
-        const insertStmt = db.prepare('INSERT INTO emails (user_id, email, is_primary) VALUES (?, ?, ?)');
-        emails.forEach(({ email, is_primary }) => {
-            insertStmt.run(id, email, is_primary ? 1 : 0);
+    async updateEmails(userId, emails) {
+        // removendo emails antigos
+        const deleteQuery = `DELETE FROM emails WHERE user_id = ?;`;
+        db.prepare(deleteQuery).run(userId);
+        // inserindo emails atualizados
+        const insertQuery = `
+            INSERT INTO emails (user_id, email, is_primary)
+            VALUES (?, ?, ?);
+        `;
+        const insert = db.prepare(insertQuery);
+        emails.forEach(email => {
+            insert.run(userId, email.email, email.is_primary ? 1 : 0);
         });
     }
 
@@ -125,11 +166,28 @@ class UserDao {
         return stmt.all();
     }
 
-    // deletando um usuário
+    async deletePhonesByUserId(userId) {
+    console.log(`Iniciando a deleção dos telefones do usuário com ID: ${userId}`);
+    const deleteStmt = db.prepare('DELETE FROM phones WHERE user_id = ?');
+    deleteStmt.run(userId);
+    console.log(`Telefones deletados para o usuário com ID: ${userId}`);
+    }
+
+    async deleteEmailsByUserId(userId) {
+        console.log(`Iniciando a deleção dos emails do usuário com ID: ${userId}`);
+        const deleteStmt = db.prepare('DELETE FROM emails WHERE user_id = ?');
+        deleteStmt.run(userId);
+        console.log(`Emails deletados para o usuário com ID: ${userId}`);
+    }
+
+    // Deletando um usuário
     async delete(id) {
+        console.log(`Iniciando a deleção do usuário com ID: ${id}`);
         const stmt = db.prepare('DELETE FROM users WHERE id = ?');
         stmt.run(id);
+        console.log(`Usuário deletado com ID: ${id}`);
     }
+
 }
 
 export { UserDao };

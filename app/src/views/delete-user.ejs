@@ -1,0 +1,14 @@
+<%- include('includes/head') %>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <h1 class="text-2xl font-bold mb-4 text-center">Deletar Usuário</h1>
+    <form action="/users/remove/<%= user.id %>" method="POST" class="text-center">
+      <p class="mb-4">Tem certeza que deseja deletar o usuário <strong><%= user.name %></strong>?</p>
+      <button type="submit" class="mt-4 w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+        Deletar
+      </button>
+      <a href="/users" class="mt-4 block text-center text-blue-500 hover:underline">Cancelar</a>
+    </form>
+  </div>
+</body>
+</html>

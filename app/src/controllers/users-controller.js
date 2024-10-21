@@ -1,6 +1,6 @@
 import { listaUsersService, addUserService, removeUserService, updateUserService, paginaAddUserService, userDetailsService } from '../services/users-service.js';
 
-// Função responsável por listar os usuários com paginação e filtro por nome
+// função responsável por listar os usuários com paginação e filtro por nome
 async function listaUsers(req, res) {
     const { nome, pagina } = req.query;
     try {
@@ -13,13 +13,13 @@ async function listaUsers(req, res) {
     }
 }
 
-// Renderizando formulário de adição de usuário
+// renderizando formulário de adição de usuário
 function paginaAddUser(req, res) {
     const data = paginaAddUserService();
     res.render('users-formulario', { data });
 }
 
-// Adicionando usuário com validação e tratamento de erros
+// adicionando usuário com validação e tratamento de erros
 async function addUser(req, res) {
     console.log({
         rota: "/users/add",
@@ -28,7 +28,6 @@ async function addUser(req, res) {
     try {
         const { name, password, cpf, perfil = 'CLIENTE' } = req.body;
 
-        // Transformar emails e telefones em arrays de objetos com is_primary corretamente
         const emails = Object.keys(req.body)
             .filter(key => key.startsWith('emails') && key.endsWith('email'))
             .map(key => {
@@ -49,11 +48,11 @@ async function addUser(req, res) {
                 };
             });
 
-        // Logs adicionais para verificar a estrutura dos dados
+        // logs adicionais para verificar a estrutura dos dados
         console.log('Emails:', emails);
         console.log('Telefones:', telefones);
 
-        // Verificar se todos os campos obrigatórios estão presentes antes de chamar o service
+        // verificando se todos os campos obrigatórios estão presentes antes de chamar o service
         if (!name || !password || !cpf || !emails.length || !telefones.length) {
             console.error("Todos os campos são obrigatórios.");
             return res.status(400).send("Erro: Todos os campos são obrigatórios.");
@@ -67,51 +66,92 @@ async function addUser(req, res) {
     }
 }
 
-
-// Excluindo usuário (não pode excluir administradores)
+// excluindo usuarios
 async function removeUser(req, res) {
+    const { id } = req.params;
+    console.log(`Recebendo requisição para remover usuário com ID: ${id}`);
     try {
-        const { id } = req.params;
         await removeUserService(id);
-        res.redirect("/users");
+        console.log(`Usuário com ID: ${id} removido com sucesso. Redirecionando para /users/list`);
+        res.redirect("/users/list");
     } catch (error) {
-        console.error("Erro ao remover usuário:", error);
-        res.status(500).send("Erro ao remover usuário");
+        console.error(`Erro ao remover usuário ${id}:`, error);
+        res.status(500).json({ error: "Erro ao remover usuário" });
     }
 }
 
 
+//atualizando usuarios
 async function updateUser(req, res) {
     const { id } = req.params;
+
+    console.log('ID do usuário a ser atualizado:', id);
+    
     try {
-        const { name, telefones, emails } = req.body;
+        console.log('Dados recebidos para atualização:', req.body);
+        
+        const { name } = req.body;
 
-        // Garantir que emails e telefones estejam no formato correto
-        const formattedEmails = emails.map(email => ({
-            email: email.email,
-            is_primary: email.is_primary === 'true'
-        }));
-        const formattedPhones = telefones.map(phone => ({
-            phone_number: phone.phone_number,
-            is_primary: phone.is_primary === 'true'
-        }));
+        // Validação manual para nome
+        if (!name || typeof name !== 'string') {
+            return res.status(400).json({ message: "Nome é obrigatório e deve ser uma string." });
+        }
 
-        await updateUserService(id, { name, telefones: formattedPhones, emails: formattedEmails });
-        res.redirect("/users/details/" + id); // Redirecionar para os detalhes do usuário atualizado
+        // Estruturação dos emails
+        const emails = [];
+        for (let i = 0; req.body[`emails[${i}][email]`]; i++) {
+            emails.push({
+                email: req.body[`emails[${i}][email]`],
+                is_primary: req.body[`emails[is_primary]`] === '1'
+            });
+        }
+
+        // Estruturação dos telefones
+        const telefones = [];
+        for (let i = 0; req.body[`telefones[${i}][phone_number]`]; i++) {
+            telefones.push({
+                phone_number: req.body[`telefones[${i}][phone_number]`],
+                is_primary: req.body[`telefones[is_primary]`] === '1'
+            });
+        }
+
+        // Verificações de email e telefone principal
+        if (!emails.some(email => email.is_primary)) {
+            console.error("Validação falhou: Nenhum email principal encontrado.");
+            return res.status(400).json({ message: "É necessário ter ao menos um email principal." });
+        }
+
+        if (!telefones.some(phone => phone.is_primary)) {
+            console.error("Validação falhou: Nenhum telefone principal encontrado.");
+            return res.status(400).json({ message: "É necessário ter ao menos um telefone principal." });
+        }
+
+        // Atualização do usuário
+        await updateUserService(id, { name, telefones, emails });
+        console.log(`Usuário ${id} atualizado com sucesso.`);
+        
+        res.redirect(`/users/updateUser/${id}?success=1`);
     } catch (error) {
-        console.error("Erro ao atualizar usuário:", error);
+        console.error("Erro ao atualizar usuário:", error.message);
         res.status(500).send("Erro ao atualizar usuário");
     }
 }
 
 async function paginaUpdateUser(req, res) {
     const { id } = req.params;
+    const { success } = req.query;
+
     try {
-        const data = await userDetailsService(id); // Obter detalhes do usuário
-        res.render('users-update', { data });
+        const data = await userDetailsService(id);
+
+        if (!data) {
+            return res.status(404).json({ error: "Usuário não encontrado." });
+        }
+
+        res.render('users-update', { data, success });
     } catch (error) {
         console.error("Erro ao carregar detalhes do usuário:", error);
-        res.status(500).send("Erro ao carregar detalhes do usuário");
+        res.status(500).json({ error: "Erro ao carregar detalhes do usuário" });
     }
 }
 
@@ -120,7 +160,6 @@ async function userDetails(req, res) {
     const { id } = req.params;
     try {
         const data = await userDetailsService(id);
-        // data agora deve conter o usuário, além de suas listas de telefones e emails
         res.render('user-details', { data });
     } catch (error) {
         console.error("Erro ao obter detalhes do usuário:", error);

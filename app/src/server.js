@@ -10,12 +10,13 @@ import { fileURLToPath } from 'url';
 import { db } from './config/database.js';
 import { addUser } from './config/addUsersDatabase.js';
 import sqlite3 from 'sqlite3';
+import methodOverride from 'method-override'
 
-// Configuração e abertura do banco de dados sqlite3
+// configuracao e abertura do banco de dados sqlite3
 const sqlite = sqlite3.verbose();
 const database = new sqlite.Database('C:/Users/55539/tads-webii-2024-2/Aula04/app/dados.db');
 
-// Função para garantir que os usuários existam no banco de dados
+// funcao para garantir que os usuários existam no banco de dados
 function ensureUsersExist() {
     const users = db.prepare('SELECT * FROM users').all();
 
@@ -38,21 +39,6 @@ function ensureUsersExist() {
     }
 }
 
-// Função para verificar o CPF
-function checkCpf(cpf) {
-    database.get('SELECT * FROM users WHERE cpf = ?', [cpf], (err, row) => {
-        if (err) {
-            console.error('Erro ao consultar CPF:', err);
-        } else if (row) {
-            console.log('Usuário encontrado:', row);
-        } else {
-            console.log('Nenhum usuário encontrado com este CPF');
-        }
-    });
-}
-
-checkCpf('04653448019');
-
 //configurações iniciais
 const __filename = fileURLToPath(import.meta.url); //determinando o nome do arquivo
 const __dirname = path.dirname(__filename); // determinando o diretorio
@@ -62,6 +48,15 @@ const app = express(); //instancia da aplicacao express
 // configurando o middleware para parsing de requisições
 app.use(express.json()); // trabalhando com APIs (JSON)
 app.use(express.urlencoded({ extended: false })); // trabalhando com form submissions (SSR)
+
+// configurando o method-override
+app.use(methodOverride('_method'));
+
+// middleware para logar requisições
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
 
 // setando o EJS como template engine
 app.set('view engine', 'ejs');
@@ -91,16 +86,16 @@ app.use('/users', usersRouter);  // Gerencia as rotas de usuários, incluindo '/
 
 ensureUsersExist();
 
-// Consultando todos os usuários 
+// consultando todos os usuários 
 const users = db.prepare('SELECT * FROM users').all();
 console.log(users);
 
-// Tratamento de erros 404 - Página não encontrada
+// tratamento de erros 404 - Página não encontrada
 app.use((req, res, next) => {
     res.status(404).render('404', { title: "Página não encontrada" });
 });
 
-// Tratamento genérico de erros (opcional)
+// tratamento genérico de erros (opcional)
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Algo deu errado!');
