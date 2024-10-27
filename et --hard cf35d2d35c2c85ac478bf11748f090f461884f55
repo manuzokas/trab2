@@ -1,0 +1,35 @@
+[33mcommit cf35d2d35c2c85ac478bf11748f090f461884f55[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Mon Oct 21 04:27:13 2024 -0300
+
+    implementei a rota, o controller e o service para o metodo de exclusao de usuarios e esta funcionando corretamente! esta pendente apenas a logica do update e solucionar o erro dos arrays de telefones nao estarem sendo printados na tela
+
+[33mcommit 4e77d43a537a3af84bf7db8c6a01dabd825417ba[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Thu Oct 17 01:43:28 2024 -0300
+
+    criação de usuarios funcionando corretamente, redirecionamento para a pagina de atualizar usuario funcionando e campos cpf e perfil restringidos de edição!
+
+[33mcommit 3c0e83423c0edd55ce7e79a132c0b01d8dfd1973[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Thu Oct 17 01:27:02 2024 -0300
+
+    atualizando a minha function user-details e arrumando visualmente ela
+
+[33mcommit da1c2af650bbbc97175e975503149d07febe4176[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Thu Oct 17 00:33:56 2024 -0300
+
+    corrigindo o erro de submissao do formulario envolvendo os multiplos emails e definição de um email/telefone principal
+
+[33mcommit fa6f683cb178bce43b93dcc9f8279565e35b8eb8[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Wed Oct 16 16:52:42 2024 -0300
+
+    adicionando o form de cadastro de usuario
+
+[33mcommit 6ae00aa15fde7ea4b612770252911186dbd1533e[m
+Author: Manuella Rodrigues <manuzokas@gmail.com>
+Date:   Sun Oct 13 22:43:12 2024 -0300
+
+    first commit

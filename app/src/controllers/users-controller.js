@@ -85,48 +85,54 @@ async function removeUser(req, res) {
 async function updateUser(req, res) {
     const { id } = req.params;
 
-    console.log('ID do usuário a ser atualizado:', id);
-    
     try {
-        console.log('Dados recebidos para atualização:', req.body);
-        
-        const { name } = req.body;
 
-        // Validação manual para nome
+        // minha logica para extrair o valor do email principal e telefone principal e dps atribuir ao index
+        const primaryEmailIndex = req.body['emails[is_primary]'];
+        const primaryPhoneIndex = req.body['telefones[is_primary]'];
+
+        const { name } = req.body;
         if (!name || typeof name !== 'string') {
             return res.status(400).json({ message: "Nome é obrigatório e deve ser uma string." });
         }
 
-        // Estruturação dos emails
+        // estruturando meus emails
         const emails = [];
+        let emailPrincipalEncontrado = false;
+
         for (let i = 0; req.body[`emails[${i}][email]`]; i++) {
+            const isPrimary = (primaryEmailIndex === i.toString());
             emails.push({
                 email: req.body[`emails[${i}][email]`],
-                is_primary: req.body[`emails[is_primary]`] === '1'
+                is_primary: isPrimary
             });
+            if (isPrimary) emailPrincipalEncontrado = true;
         }
 
-        // Estruturação dos telefones
+        // estruturando meus telefones
         const telefones = [];
+        let telefonePrincipalEncontrado = false;
         for (let i = 0; req.body[`telefones[${i}][phone_number]`]; i++) {
+            const isPrimary = (primaryPhoneIndex === i.toString());
             telefones.push({
                 phone_number: req.body[`telefones[${i}][phone_number]`],
-                is_primary: req.body[`telefones[is_primary]`] === '1'
+                is_primary: isPrimary
             });
+            if (isPrimary) telefonePrincipalEncontrado = true;
         }
 
-        // Verificações de email e telefone principal
-        if (!emails.some(email => email.is_primary)) {
-            console.error("Validação falhou: Nenhum email principal encontrado.");
+        // verificações de email e telefone principal
+        if (!emailPrincipalEncontrado) {
+            console.log("Erro: Nenhum email principal encontrado.");
             return res.status(400).json({ message: "É necessário ter ao menos um email principal." });
         }
-
-        if (!telefones.some(phone => phone.is_primary)) {
-            console.error("Validação falhou: Nenhum telefone principal encontrado.");
+        if (!telefonePrincipalEncontrado) {
+            console.log("Erro: Nenhum telefone principal encontrado.");
             return res.status(400).json({ message: "É necessário ter ao menos um telefone principal." });
         }
 
-        // Atualização do usuário
+        // atualizando o usuario e chamando o meu metodo no service
+        console.log('Dados finais para atualização:', { name, telefones, emails });
         await updateUserService(id, { name, telefones, emails });
         console.log(`Usuário ${id} atualizado com sucesso.`);
         

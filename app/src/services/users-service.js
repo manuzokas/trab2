@@ -114,22 +114,18 @@ async function removeUserService(id) {
 
 async function updateUserService(id, { name, telefones, emails }) {
     const userDao = new UserDao();
-
     const user = await userDao.findById(id);
     if (!user) {
         throw new Error("Usuário não encontrado");
     }
-
-    await userDao.updateUser({
-        id,
-        name
-    });
-
+    
+    await userDao.updateUser({ id, name });
     await userDao.updatePhones(id, telefones);
     await userDao.updateEmails(id, emails);
-
+    
     return user;
 }
+
 
 async function userDetailsService(id) {
     console.log(`Iniciando busca de detalhes do usuário com ID: ${id}`);

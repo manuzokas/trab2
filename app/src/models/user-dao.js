@@ -103,7 +103,8 @@ class UserDao {
         }
     }
 
-    async updateUser({ id, name}) {
+    //atualizando usuario
+    async updateUser({ id, name }) {
         const query = `
             UPDATE users
             SET name = ?
@@ -112,11 +113,11 @@ class UserDao {
         db.prepare(query).run(name, id);
     }
 
+    //atualizando telefones
     async updatePhones(userId, telefones) {
-        // removendo telefones antigos
         const deleteQuery = `DELETE FROM phones WHERE user_id = ?;`;
         db.prepare(deleteQuery).run(userId);
-        // inserindo os telefones atualizados
+
         const insertQuery = `
             INSERT INTO phones (user_id, phone_number, is_primary)
             VALUES (?, ?, ?);
@@ -127,11 +128,11 @@ class UserDao {
         });
     }
 
+    //atualizando emails
     async updateEmails(userId, emails) {
-        // removendo emails antigos
         const deleteQuery = `DELETE FROM emails WHERE user_id = ?;`;
         db.prepare(deleteQuery).run(userId);
-        // inserindo emails atualizados
+
         const insertQuery = `
             INSERT INTO emails (user_id, email, is_primary)
             VALUES (?, ?, ?);
@@ -141,6 +142,7 @@ class UserDao {
             insert.run(userId, email.email, email.is_primary ? 1 : 0);
         });
     }
+
 
     // buscando telefones por ID de usuário
     async findPhonesByUserId(userId) {
@@ -180,7 +182,7 @@ class UserDao {
         console.log(`Emails deletados para o usuário com ID: ${userId}`);
     }
 
-    // Deletando um usuário
+    // deletando um usuário
     async delete(id) {
         console.log(`Iniciando a deleção do usuário com ID: ${id}`);
         const stmt = db.prepare('DELETE FROM users WHERE id = ?');
