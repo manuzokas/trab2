@@ -10,16 +10,23 @@ async function listaUsersService(nome, pagina) {
     }
     const offset = (paginaAtual - 1) * limite;
 
-    // obtendo os usuarios filtrados
+    // obtendo os usuários filtrados
     const usersRaw = await userDao.listFiltered(nome, limite, offset);
-    // Obter e-mails e telefones relacionados
+
+    // obtendo e-mails e telefones relacionados
     const emailsRaw = await userDao.getAllEmails();
+
     const telefonesRaw = await userDao.getAllTelefones();
 
-    // garantindo que os emails e os telefones sejam arrays
+    // garantindo que os e-mails e os telefones sejam arrays
     const users = usersRaw.map(u => {
+        
         const userEmails = emailsRaw.filter(email => email.user_id === u.id) || [];
         const userTelefones = telefonesRaw.filter(phone => phone.user_id === u.id) || [];
+        
+        console.log(`Usuário: ${u.name}, E-mails:`, userEmails);
+        console.log(`Usuário: ${u.name}, Telefones:`, userTelefones);
+
         return new User(u.id, u.name, u.password, u.created_at, u.cpf, u.perfil, userEmails.length ? userEmails : [], userTelefones.length ? userTelefones : []);
     });
 
@@ -31,16 +38,18 @@ async function listaUsersService(nome, pagina) {
     const data = {
         title: "WEB II",
         users,
-        nomeFiltro: nome,
+        nomeFiltro: nome || '',
         paginaAtual,
         totalUsers: totalUsersValid,
         usuariosPorPagina: limite,
         totalPaginas
     };
 
-    console.log(data);
+    console.log('Usuários Finalizados:', users);
+
     return data;
 }
+
 
 function paginaAddUserService() {
     return { title: "WEB II - Add User" };

@@ -29,7 +29,7 @@
                             <td class="py-3 px-6 text-left"><%= user.cpf %></td>
                             <td class="py-3 px-6 text-left">
                                 <% 
-                                const primaryPhone = user.phones && user.phones.find(phone => phone.is_primary === 1);
+                                const primaryPhone = user.telefones && user.telefones.find(phone => phone.is_primary === 1);
                                 if (primaryPhone) { 
                                 %>
                                     <%= primaryPhone.phone_number %>
@@ -37,6 +37,7 @@
                                     Não cadastrado
                                 <% } %>
                             </td>
+
                             <td class="py-3 px-6 text-left">
                                 <% 
                                 const primaryEmail = user.emails && user.emails.find(email => email.is_primary === 1);

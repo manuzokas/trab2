@@ -3,9 +3,30 @@ import { listaUsersService, addUserService, removeUserService, updateUserService
 // função responsável por listar os usuários com paginação e filtro por nome
 async function listaUsers(req, res) {
     const { nome, pagina } = req.query;
+
+    console.log('Nome recebido do query:', nome);
+
     try {
-        const data = await listaUsersService(nome, pagina); // Use await aqui
-        console.log(data); // Log dos dados retornados
+        const data = await listaUsersService(nome, pagina);
+        console.log('Estrutura de dados retornada:', JSON.stringify(data, null, 2));
+
+        // Verifique a estrutura de dados dos usuários
+        data.users.forEach(user => {
+            console.log(`Usuário ID: ${user.id}, Nome: ${user.name}, Telefones:`, user.telefones);
+
+            // Atualizando para usar user.telefones
+            if (user.telefones && user.telefones.length > 0) {
+                user.telefones.forEach(phone => {
+                    console.log(`Telefone: ${phone.phone_number}, is_primary: ${phone.is_primary}`);
+                });
+
+                const primaryPhone = user.telefones.find(phone => phone.is_primary === 1);
+                console.log(`Telefone primário encontrado para Usuário ID: ${user.id}:`, primaryPhone);
+            } else {
+                console.log(`Nenhum telefone encontrado para Usuário ID: ${user.id}`);
+            }
+        });
+
         res.render('users-list', { data });
     } catch (error) {
         console.error('Erro ao listar usuários:', error);
